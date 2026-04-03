@@ -26,4 +26,15 @@ urlpatterns = [
 
     # register url to create a project
     path('project/new/', views.create_project, name='create_project'),
+
+    # view projects
+    path('project/list/', views.ProjectsView.as_view(), name='list_projects'),
+
+    path('', views.home, name="home"),
+
+    # view a project
+    path('project/<int:pk>/view/', views.view_project, name='view_project'),
+
+    # delete a project
+    path('project/<int:pk>/delete/', views.delete_project, name='delete_project')
 ]

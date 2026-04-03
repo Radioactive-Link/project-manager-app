@@ -1,7 +1,56 @@
-<h2>Create Project</h2>
+{% extends 'core/base.html' %}
+{% load form_tags %}
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Create</button>
-</form>
+{% block title %}Create Project{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm p-4">
+    <h2 class="mb-4">Create New Project</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <!-- Name -->
+        <div class="mb-3">
+            {{ form.name.label_tag }}
+            {{ form.name|add_class:"form-control" }}
+            {{ form.name.errors }}
+        </div>
+
+        <!-- Owner -->
+        <div class="mb-3">
+            {{ form.owner.label_tag }}
+            {{ form.owner|add_class:"form-control" }}
+            {{ form.owner.errors }}
+        </div>
+
+        <!-- Description -->
+        <div class="mb-3">
+            {{ form.description.label_tag }}
+            {{ form.description|add_class:"form-control" }}
+            {{ form.description.errors }}
+        </div>
+
+        <!-- Risks (Multi-select) -->
+        <div class="mb-3">
+            {{ form.risks.label_tag }}
+            {{ form.risks|add_class:"form-select" }}
+            {{ form.risks.errors }}
+            <small class="form-text text-muted">Hold Ctrl/Cmd to select multiple risks.</small>
+        </div>
+
+        <!-- Employees (Multi-select) -->
+        <div class="mb-3">
+            {{ form.employees.label_tag }}
+            {{ form.employees|add_class:"form-select" }}
+            {{ form.employees.errors }}
+            <small class="form-text text-muted">Hold Ctrl/Cmd to select multiple employees.</small>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn btn-primary">Create Project</button>
+        <a href="/" class="btn btn-secondary ms-2">Cancel</a>
+    </form>
+</div>
+{% endblock %}

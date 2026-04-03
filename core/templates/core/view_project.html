@@ -1,0 +1,105 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Project Details{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>{{ project.name }}</h2>
+
+        <div>
+            <a href="{% url 'edit_project' project.id %}" class="btn btn-primary">
+                Edit
+            </a>
+            <button type="button" class="btn btn-danger ms-2" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                Delete
+            </button>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Owner -->
+    <p><strong>Owner:</strong> {{ project.owner }}</p>
+
+    <!-- Description -->
+    <div class="mb-3">
+        <strong>Description:</strong>
+        <p class="text-muted">{{ project.description }}</p>
+    </div>
+
+    <!-- Risks -->
+    <div class="mb-3">
+        <strong>Risks:</strong>
+        {% if project.risks.all %}
+            <ul class="list-group mt-2">
+                {% for risk in risks %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ risk.risk_description }}
+                        <span class="badge 
+                            {% if risk.risk_status == 'HR' %}bg-danger
+                            {% elif risk.risk_status == 'MR' %}bg-warning text-dark
+                            {% else %}bg-success
+                            {% endif %}
+                        ">
+                            {{ risk.get_risk_status_display }}
+                        </span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted">No risks assigned.</p>
+        {% endif %}
+    </div>
+
+    <!-- Employees -->
+    <div class="mb-3">
+        <strong>Team Members:</strong>
+        {% if project.employees.all %}
+            <ul class="list-group mt-2">
+                {% for emp in project.employees.all %}
+                    <li class="list-group-item">
+                        {{ emp.full_name }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted">No employees assigned.</p>
+        {% endif %}
+    </div>
+
+    <div>
+        <a href="{% url 'list_projects' %}" class="d-inline btn btn-secondary mt-3 px-5">Back to List</a>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Delete Project</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        Are you sure you want to delete <strong>{{ project.name }}</strong>?
+        This action cannot be undone.
+      </div>
+
+      <div class="modal-footer">
+        <form method="post" action="{% url 'delete_project' project.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        </form>
+
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            Cancel
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -18,7 +18,7 @@ class Risk(models.Model):
     risk_description = models.CharField(max_length=350)
 
     def __str__(self):
-        return f"{self.risk_status} - {self.risk_description}"
+        return f"{self.get_risk_status_display()} - {self.risk_description}"
 
 class Employee(models.Model):
     first_name = models.CharField(max_length=120)
@@ -33,6 +33,9 @@ class Employee(models.Model):
         return self.full_name
 
 class Project(models.Model):
+    # name of the project
+    name = models.CharField(max_length=100)
+
     # who owns / manages this project
     owner = models.CharField(max_length=100)
     # description of what the project is
@@ -44,4 +47,4 @@ class Project(models.Model):
     employees = models.ManyToManyField(Employee)
 
     def __str__(self):
-        return f"Project [{self.pk}]"
+        return f"Project {self.name}"

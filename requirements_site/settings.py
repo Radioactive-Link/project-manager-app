@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'core', # the module that the app lives in
+    'django_tables2', # package to allow rendering tables dynamically
 ]
 
 MIDDLEWARE = [
