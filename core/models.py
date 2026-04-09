@@ -48,3 +48,28 @@ class Project(models.Model):
 
     def __str__(self):
         return f"Project {self.name}"
+
+class Requirement(models.Model):
+    class RequirementTypes(models.TextChoices):
+        FUNCTIONAL = "FR", _("Functional")
+        NONFUNCTIONAL = "NFR", _("Non-functional")
+    
+    # classification of this requirement
+    requirement_type = models.CharField(
+        max_length=3,
+        choices=RequirementTypes,
+        default=RequirementTypes.FUNCTIONAL,
+    )
+
+    # describes what this requirement is
+    requirement_description = models.CharField(max_length=1000)
+
+    # many can belong to a single project
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        related_name="requirements",
+    )
+
+    def __str__(self):
+        return f"{self.requirement_type}: {str(self.requirement_description)[:32]+'...'}"

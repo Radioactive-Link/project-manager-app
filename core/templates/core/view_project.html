@@ -68,6 +68,23 @@
         {% endif %}
     </div>
 
+    <!-- Requirements -->
+    <div class="mb-3">
+        <strong>Requirements:</strong>
+        {% for type, reqs in requirements.items %}
+            <h5 class="mt-2">{{ type }}</h5>
+            <ul class="list-group mt-2">
+                {% for req in reqs %}
+                    <li class="list-group-item">
+                        <small>{{ req.requirement_description }}</small>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% empty %}
+            <p class="text-muted">No requirements added.</p>
+        {% endfor %}
+    </div>
+
     <div>
         <a href="{% url 'list_projects' %}" class="d-inline btn btn-secondary mt-3 px-5">Back to List</a>
     </div>

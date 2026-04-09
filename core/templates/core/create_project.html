@@ -4,7 +4,7 @@
 {% block title %}Create Project{% endblock %}
 
 {% block content %}
-<div class="card shadow-sm p-4">
+<div class="card shadow-sm p-4 mb-4">
     <h2 class="mb-4">Create New Project</h2>
 
     <form method="post">
@@ -48,9 +48,124 @@
             <small class="form-text text-muted">Hold Ctrl/Cmd to select multiple employees.</small>
         </div>
 
+        <h4>Requirements</h4>
+
+        {{ requirement_formset.management_form }}
+        <div class="card p-2">
+            <div id="requirements-formset">
+                {% for req_form in requirement_formset %}
+                    {% if req_form.non_field_errors %}
+                        <div class="text-danger">
+                            {{ req_form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <!-- Requirement Type & Description -->
+                    <div class="row mb-2 requirement-form">
+                        <div class="col-md-2">
+                            {{ req_form.requirement_type|add_class:"form-select" }}
+                        </div>
+                        <div class="col-md-8">
+                            {{ req_form.requirement_description|add_class:"form-control" }}
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button"
+                                    class="btn btn-danger w-100 delete-btn">
+                                Remove
+                            </button>
+                        </div>
+
+                        <!-- Hidden delete checkbox -->
+                        <div style="display:none;">
+                            {{ req_form.DELETE }}
+                        </div>
+                    </div>
+                {% endfor %}
+
+                <template id="empty-form-template">
+                    <div class="row mb-2 requirement-form">
+                        <div class="col-md-2">
+                            {{ requirement_formset.empty_form.requirement_type|add_class:"form-select" }}
+                        </div>
+                        <div class="col-md-8">
+                            {{ requirement_formset.empty_form.requirement_description|add_class:"form-control" }}
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-danger w-100 delete-btn">
+                                Remove
+                            </button>
+                        </div>
+
+                        <div style="display:none;">
+                            {{ requirement_formset.empty_form.DELETE }}
+                        </div>
+                    </div>
+                </template>
+            </div>
+            <button type="button" class="btn btn-success px-3" style="width: fit-content" id="addRequirementBtn">Add Requirement</button>
+        </div>
+
         <!-- Submit -->
-        <button type="submit" class="btn btn-primary">Create Project</button>
-        <a href="/" class="btn btn-secondary ms-2">Cancel</a>
+        <button type="submit" class="btn btn-primary mt-4">Create Project</button>
+        <a href="/" class="btn btn-secondary ms-2 mt-4">Cancel</a>
     </form>
 </div>
+
+<script>
+    document.getElementById('addRequirementBtn').addEventListener('click', () => {
+        const formsetDiv = document.getElementById("requirements-formset");
+        const totalForms = document.getElementById("id_requirements-TOTAL_FORMS");
+        const template = document.getElementById("empty-form-template").innerHTML;
+
+        const formIndex = parseInt(totalForms.value);
+
+        const newFormHtml = template.replace(/__prefix__/g, formIndex);
+
+        const wrapper = document.createElement("div");
+        wrapper.innerHTML = newFormHtml;
+
+        const newForm = wrapper.firstElementChild;
+
+        formsetDiv.appendChild(newForm);
+        totalForms.value = formIndex + 1;
+    });
+
+    function updateFormIndexes() {
+        const forms = document.querySelectorAll(".requirement-form");
+        const totalForms = document.getElementById("id_requirements-TOTAL_FORMS");
+
+        totalForms.value = forms.length;
+
+        forms.forEach((form, index) => {
+            form.querySelectorAll("input, select, textarea, label").forEach(el => {
+                if (el.name) {
+                    el.name = el.name.replace(/-\d+-/, `-${index}-`);
+                }
+                if (el.id) {
+                    el.id = el.id.replace(/-\d+-/, `-${index}-`);
+                }
+                if (el.htmlFor) {
+                    el.htmlFor = el.htmlFor.replace(/-\d+-/, `-${index}-`);
+                }
+            });
+        });
+    }
+
+    document.addEventListener("click", function(e) {
+        if (e.target.classList.contains("delete-btn")) {
+            const formDiv = e.target.closest(".requirement-form");
+            const deleteInput = formDiv.querySelector("input[type='checkbox'][name$='-DELETE']");
+
+            if (deleteInput) {
+                // existing object: mark for deletion and hide instantly
+                deleteInput.checked = true;
+                formDiv.style.display = "none";
+            } else {
+                // new form: remove entirely and reindex
+                formDiv.remove();
+                updateFormIndexes();
+            }
+        }
+    });
+</script>
 {% endblock %}
