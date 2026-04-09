@@ -32,14 +32,6 @@
             {{ form.description.errors }}
         </div>
 
-        <!-- Risks (Multi-select) -->
-        <div class="mb-3">
-            {{ form.risks.label_tag }}
-            {{ form.risks|add_class:"form-select" }}
-            {{ form.risks.errors }}
-            <small class="form-text text-muted">Hold Ctrl/Cmd to select multiple risks.</small>
-        </div>
-
         <!-- Employees (Multi-select) -->
         <div class="mb-3">
             {{ form.employees.label_tag }}
@@ -51,7 +43,7 @@
         <h4>Requirements</h4>
 
         {{ requirement_formset.management_form }}
-        <div class="card p-2">
+        <div class="card p-2 mb-2">
             <div id="requirements-formset">
                 {% for req_form in requirement_formset %}
                     {% if req_form.non_field_errors %}
@@ -70,7 +62,7 @@
                         </div>
                         <div class="col-md-2">
                             <button type="button"
-                                    class="btn btn-danger w-100 delete-btn">
+                                    class="btn btn-danger w-100 requirement-delete-btn">
                                 Remove
                             </button>
                         </div>
@@ -91,7 +83,7 @@
                             {{ requirement_formset.empty_form.requirement_description|add_class:"form-control" }}
                         </div>
                         <div class="col-md-2">
-                            <button type="button" class="btn btn-danger w-100 delete-btn">
+                            <button type="button" class="btn btn-danger w-100 requirement-delete-btn">
                                 Remove
                             </button>
                         </div>
@@ -103,6 +95,63 @@
                 </template>
             </div>
             <button type="button" class="btn btn-success px-3" style="width: fit-content" id="addRequirementBtn">Add Requirement</button>
+        </div>
+
+        <h4>Risks</h4>
+
+        {{ risk_formset.management_form }}
+        <div class="card p-2">
+            <div id="risks-formset">
+                {% for risk_form in risk_formset %}
+                    {% if risk_form.non_field_errors %}
+                        <div class="text-danger">
+                            {{ risk_form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <!-- Risk Status & Description -->
+                    <div class="row mb-2 risk-form">
+                        <div class="col-md-2">
+                            {{ risk_form.risk_status|add_class:"form-select" }}
+                        </div>
+                        <div class="col-md-8">
+                            {{ risk_form.risk_description|add_class:"form-control" }}
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button"
+                                    class="btn btn-danger w-100 risk-delete-btn">
+                                Remove
+                            </button>
+                        </div>
+
+                        <!-- Hidden delete checkbox -->
+                        <div style="display:none;">
+                            {{ risk_form.DELETE }}
+                        </div>
+                    </div>
+                {% endfor %}
+
+                <template id="empty-risk-form-template">
+                    <div class="row mb-2 risk-form">
+                        <div class="col-md-2">
+                            {{ risk_formset.empty_form.risk_status|add_class:"form-select" }}
+                        </div>
+                        <div class="col-md-8">
+                            {{ risk_formset.empty_form.risk_description|add_class:"form-control" }}
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-danger w-100 risk-delete-btn">
+                                Remove
+                            </button>
+                        </div>
+
+                        <div style="display:none;">
+                            {{ risk_formset.empty_form.DELETE }}
+                        </div>
+                    </div>
+                </template>
+            </div>
+            <button type="button" class="btn btn-success px-3" style="width: fit-content" id="addRiskBtn">Add Risk</button>
         </div>
 
         <!-- Submit -->
@@ -152,7 +201,7 @@
     }
 
     document.addEventListener("click", function(e) {
-        if (e.target.classList.contains("delete-btn")) {
+        if (e.target.classList.contains("requirement-delete-btn")) {
             const formDiv = e.target.closest(".requirement-form");
             const deleteInput = formDiv.querySelector("input[type='checkbox'][name$='-DELETE']");
 
@@ -164,6 +213,62 @@
                 // new form: remove entirely and reindex
                 formDiv.remove();
                 updateFormIndexes();
+            }
+        }
+    });
+
+    document.getElementById('addRiskBtn').addEventListener('click', () => {
+        const formsetDiv = document.getElementById("risks-formset");
+        const totalForms = document.getElementById("id_risks-TOTAL_FORMS");
+        const template = document.getElementById("empty-risk-form-template").innerHTML;
+
+        const formIndex = parseInt(totalForms.value);
+
+        const newFormHtml = template.replace(/__prefix__/g, formIndex);
+
+        const wrapper = document.createElement("div");
+        wrapper.innerHTML = newFormHtml;
+
+        const newForm = wrapper.firstElementChild;
+
+        formsetDiv.appendChild(newForm);
+        totalForms.value = formIndex + 1;
+    });
+
+    function updateRiskFormIndexes() {
+        const forms = document.querySelectorAll(".risk-form");
+        const totalForms = document.getElementById("id_risks-TOTAL_FORMS");
+
+        totalForms.value = forms.length;
+
+        forms.forEach((form, index) => {
+            form.querySelectorAll("input, select, textarea, label").forEach(el => {
+                if (el.name) {
+                    el.name = el.name.replace(/-\d+-/, `-${index}-`);
+                }
+                if (el.id) {
+                    el.id = el.id.replace(/-\d+-/, `-${index}-`);
+                }
+                if (el.htmlFor) {
+                    el.htmlFor = el.htmlFor.replace(/-\d+-/, `-${index}-`);
+                }
+            });
+        });
+    }
+
+    document.addEventListener("click", function(e) {
+        if (e.target.classList.contains("risk-delete-btn")) {
+            const formDiv = e.target.closest(".risk-form");
+            const deleteInput = formDiv.querySelector("input[type='checkbox'][name$='-DELETE']");
+
+            if (deleteInput) {
+                // existing object: mark for deletion and hide instantly
+                deleteInput.checked = true;
+                formDiv.style.display = "none";
+            } else {
+                // new form: remove entirely and reindex
+                formDiv.remove();
+                updateRiskFormIndexes();
             }
         }
     });

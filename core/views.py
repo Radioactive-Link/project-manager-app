@@ -4,7 +4,7 @@ from django.db.models import Case, When, Value, IntegerField
 from collections import defaultdict
 
 from .models import Project, Requirement
-from .forms import ProjectForm, RequirementFormSet
+from .forms import ProjectForm, RequirementFormSet, RiskFormSet
 from .tables import ProjectsTable
 
 def home(request):
@@ -15,35 +15,48 @@ def edit_project(request, pk):
 
     if request.method == 'POST':
         form = ProjectForm(request.POST, instance=project)
-        formset = RequirementFormSet(request.POST, instance=project, prefix="requirements")
-        if form.is_valid() and formset.is_valid():
+        req_formset = RequirementFormSet(request.POST, instance=project, prefix="requirements")
+        risk_formset = RiskFormSet(request.POST, instance=project, prefix="risks")
+
+        if form.is_valid() and req_formset.is_valid() and risk_formset.is_valid():
             form.save()
-            formset.save()
+            req_formset.save()
+            risk_formset.save()
             return redirect('view_project', pk=project.pk)
     else:
         form = ProjectForm(instance=project)
-        formset = RequirementFormSet(instance=project, prefix="requirements")
+        req_formset = RequirementFormSet(instance=project, prefix="requirements")
+        risk_formset = RiskFormSet(instance=project, prefix="risks")
 
-    return render(request, 'core/edit_project.html', {'form': form, 'project_id': project.pk, 'requirement_formset': formset})
+    return render(request, 'core/edit_project.html', {
+        'form': form,
+        'project_id': project.pk,
+        'requirement_formset': req_formset,
+        'risk_formset': risk_formset,
+    })
 
 def create_project(request):
     if request.method == 'POST':
         form = ProjectForm(request.POST)
-        formset = RequirementFormSet(request.POST)
+        req_formset = RequirementFormSet(request.POST)
+        risk_formset = RiskFormSet(request.POST)
 
-        if form.is_valid() and formset.is_valid():
+        if form.is_valid() and req_formset.is_valid() and risk_formset.is_valid():
             project = form.save()
-            formset.instance = project
-            formset.save()
-            risks = order_risks(project)
+            req_formset.instance = project
+            req_formset.save()
+            risk_formset.instance = project
+            risk_formset.save()
             return redirect('view_project', pk=project.pk)
     else:
         form = ProjectForm()
-        formset = RequirementFormSet()
+        req_formset = RequirementFormSet()
+        risk_formset = RiskFormSet()
 
     return render(request, 'core/create_project.html', {
         'form': form,
-        'requirement_formset': formset
+        'requirement_formset': req_formset,
+        'risk_formset': risk_formset,
     })
 
 class ProjectsView(SingleTableView):
@@ -76,7 +89,7 @@ def order_risks(project: Project):
             When(risk_status='LR', then=Value(3)),
             output_field=IntegerField()
         )
-    ).order_by('priority_order')
+    ).order_by('priority_order', 'risk_description')
 
 def delete_project(request, pk):
     project = get_object_or_404(Project, pk=pk)
