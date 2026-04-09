@@ -1,11 +1,12 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django_tables2 import SingleTableView
-from django.db.models import Case, When, Value, IntegerField
+from django_tables2 import SingleTableView, RequestConfig
+from django.db.models import Case, When, Value, IntegerField, Sum, Q
+from django.utils import timezone
 from collections import defaultdict
 
 from .models import Project, Requirement
-from .forms import ProjectForm, RequirementFormSet, RiskFormSet
-from .tables import ProjectsTable
+from .forms import ProjectForm, RequirementFormSet, RiskFormSet, EffortForm
+from .tables import ProjectsTable, RequirementEffortTable
 
 def home(request):
     return render(request, 'core/home.html')
@@ -99,3 +100,39 @@ def delete_project(request, pk):
         return redirect("/project/list")
 
     return redirect("/")
+
+def get_requirements_with_effort(project: Project):
+    return Requirement.objects.filter(project=project).annotate(
+        total_hours=Sum('efforts__hours'),
+        analysis_hours=Sum('efforts__hours', filter=Q(efforts__effort_type='AN')),
+        design_hours=Sum('efforts__hours', filter=Q(efforts__effort_type='DE')),
+        coding_hours=Sum('efforts__hours', filter=Q(efforts__effort_type='CO')),
+        testing_hours=Sum('efforts__hours', filter=Q(efforts__effort_type='TE')),
+        pm_hours=Sum('efforts__hours', filter=Q(efforts__effort_type='PM')),
+    ).order_by('requirement_type', 'requirement_description')
+
+def track_effort(request, pk):
+    project = get_object_or_404(Project, pk=pk)
+    requirements = project.requirements.all()
+
+    if request.method == "POST":
+        effort_form = EffortForm(request.POST, project=project)
+        if effort_form.is_valid():
+            effort = effort_form.save(commit=False)
+            effort.project = project
+            effort.save()
+            # refresh page
+            return redirect('track_effort', pk=pk)
+    else:
+        effort_form = EffortForm(project=project, initial={'date': timezone.localdate()})
+    
+    requirements_with_hours = get_requirements_with_effort(project)
+    table = RequirementEffortTable(requirements_with_hours)
+    RequestConfig(request, paginate={'per_page': 25}).configure(table)
+
+    return render(request, 'core/track_effort.html', {
+        'project': project,
+        'requirements': requirements,
+        'effort_form': effort_form,
+        'table': table,
+    })

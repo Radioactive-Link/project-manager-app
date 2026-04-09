@@ -36,5 +36,8 @@ urlpatterns = [
     path('project/<int:pk>/view/', views.view_project, name='view_project'),
 
     # delete a project
-    path('project/<int:pk>/delete/', views.delete_project, name='delete_project')
+    path('project/<int:pk>/delete/', views.delete_project, name='delete_project'),
+
+    # enter and view efforts of a project
+    path('project/<int:pk>/efforts/', views.track_effort, name='track_effort'),
 ]

@@ -78,3 +78,34 @@ class Risk(models.Model):
 
     def __str__(self):
         return f"{self.get_risk_status_display()} - {self.risk_description}"
+
+class EffortEntry(models.Model):
+    class EffortCategories(models.TextChoices):
+        ANALYSIS = "AN", _("Requirement Analysis")
+        DESIGN = "DE", _("Design")
+        CODING = "CO", _("Coding")
+        TESTING = "TE", _("Testing")
+        PROJECT_MANAGEMENT = "PM", _("Project Management")
+
+    # what category was this effort spent on
+    effort_type = models.CharField(
+        max_length=2,
+        choices=EffortCategories,
+    )
+
+    # when the effort was spent.
+    # for week, this will just be the start of the week
+    date = models.DateField()
+
+    # effort spent in person-hours
+    hours = models.DecimalField(max_digits=5, decimal_places=2)
+
+    # effort is tracked by requirement
+    requirement = models.ForeignKey(
+        Requirement,
+        on_delete=models.CASCADE,
+        related_name="efforts"
+    )
+
+    def __str__(self):
+        return f"{self.get_effort_type_display()}: [{self.pk} | {self.date}] {self.hours}"

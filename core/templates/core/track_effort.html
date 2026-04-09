@@ -1,0 +1,140 @@
+{% extends 'core/base.html' %}
+{% load form_tags %}
+{% load render_table from django_tables2 %}
+
+{% block title %}Track Effort{% endblock %}
+
+{% block content %}
+<div>
+    <a href="{% url 'list_projects' %}" class="text-decoration-none">← Back</a>
+    <h1>Effort Tracking for {{ project.name }}</h1>
+    <!-- Add Effort Entry -->
+    {% if requirements %}
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        
+        <div class="row">
+            <div class="col-md-4 d-flex flex-column gap-2">
+                <div>
+                    {{ effort_form.requirement.label_tag }}
+                    {{ effort_form.requirement|add_class:"form-control" }}
+                    {{ effort_form.requirement.errors }}
+                </div>
+                <div>
+                    {{ effort_form.effort_type.label_tag }}
+                    {{ effort_form.effort_type|add_class:"form-control" }}
+                    {{ effort_form.effort_type.errors }}
+                </div>
+            </div>
+            
+            <div class="col-md-3 d-flex flex-column gap-2">
+                <div class="">
+                    {{ effort_form.date.label_tag }}
+                    {{ effort_form.date|add_class:"form-control" }}
+                    {{ effort_form.date.errors }}
+                </div>
+                <div class="">
+                    {{ effort_form.hours.label_tag }}
+                    {{ effort_form.hours|add_class:"form-control" }}
+                    {{ effort_form.hours.errors }}
+                </div>
+            </div>
+
+            <div class="col-md-2 justify-content-start align-self-end">
+                <button type="submit" class="btn btn-success">
+                    + Add
+                </button>
+            </div>
+        </div>
+    </form>
+    {% else %}
+    <div class="row">
+        <p class="text-muted">This project has no requirements.</p>
+    </div>
+    {% endif %}
+
+    <hr class="line-break" />
+
+    <!-- Hours by Requirement and Category View-->
+    {% if table.data %}
+    <table class="table custom-table">
+        <thead>
+            <tr>
+                <th>Requirement Type</th>
+                <th>Requirement</th>
+                <th>Total Hours</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for requirement in table.data %}
+            <!-- Summary row -->
+            <tr class="summary-row" data-bs-toggle="collapse" data-bs-target="#details-{{ requirement.pk }}" style="cursor: pointer;">
+                <td>
+                    <i class="bi bi-chevron-right toggle-caret me-2"></i>
+                    {{ requirement.get_requirement_type_display }}
+                </td>
+                <td>{{ requirement.requirement_description }}</td>
+                <td>{{ requirement.total_hours }}</td>
+            </tr>
+            <!-- Collapsible details row -->
+            <tr id="details-{{ requirement.pk }}" class="collapse detail-row">
+                <td colspan="3">
+                    <div class="detail-content">
+                        <ul class="mb-0 list-group">
+                            <li class="list-group-item">Analysis: {{ requirement.analysis_hours }}</li>
+                            <li class="list-group-item">Design: {{ requirement.design_hours }}</li>
+                            <li class="list-group-item">Coding: {{ requirement.coding_hours }}</li>
+                            <li class="list-group-item">Testing: {{ requirement.testing_hours }}</li>
+                            <li class="list-group-item">Project Management: {{ requirement.pm_hours }}</li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">No effort to track.</p>
+    {% endif %}
+</div>
+<style>
+    .toggle-caret {
+        display: inline-block;
+        transition: transform 0.2s ease;
+    }
+
+    .detail-content {
+        opacity: 0;
+        transform: translateY(-6px);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    tr.collapse.show .detail-content {
+        opacity: 1;
+        transform: translateY(0);
+        transition-delay: 0.05s;
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.collapse').forEach(el => {
+            el.addEventListener('show.bs.collapse', function () {
+                const row = document.querySelector(`[data-bs-target="#${this.id}"]`);
+                if (!row) return;
+
+                const caret = row.querySelector('.toggle-caret');
+                if (caret) caret.style.transform = 'rotate(90deg)';
+            });
+
+            el.addEventListener('hide.bs.collapse', function () {
+                const row = document.querySelector(`[data-bs-target="#${this.id}"]`);
+                if (!row) return;
+
+                const caret = row.querySelector('.toggle-caret');
+                if (caret) caret.style.transform = 'rotate(0deg)';
+            });
+        });
+    });
+</script>
+{% endblock %}
