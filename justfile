@@ -1,8 +1,8 @@
 drun := "uv run manage.py"
 
 # run manage.py with uv
-djr:
-    {{drun}}
+djr *ARGS:
+    {{drun}} {{ ARGS }}
 
 # start the django dev server
 dev:
