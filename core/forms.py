@@ -1,4 +1,5 @@
 from django import forms
+from django_select2 import forms as s2forms
 from .models import Project, Requirement, Risk, EffortEntry
 
 RequirementFormSet = forms.inlineformset_factory(
@@ -17,10 +18,19 @@ RiskFormSet = forms.inlineformset_factory(
     can_delete=True,
 )
 
+class EmployeesWidget(s2forms.Select2MultipleWidget):
+    search_fields = [
+        "first_name__icontains",
+        "last_name__icontains",
+    ]
+
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project
         fields = ['name', 'owner', 'description', 'employees']
+        widgets = {
+            "employees": EmployeesWidget,
+        }
 
 class EffortForm(forms.ModelForm):
     class Meta:

@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 
     'core', # the module that the app lives in
     'django_tables2', # package to allow rendering tables dynamically
+    'django_select2', # package for better multi-select forms
 ]
 
 MIDDLEWARE = [

@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
 from core import views
 
 urlpatterns = [
@@ -40,4 +40,8 @@ urlpatterns = [
 
     # enter and view efforts of a project
     path('project/<int:pk>/efforts/', views.track_effort, name='track_effort'),
+
+    # required for django_select2 to maintain metadata on models
+    # see: https://django-select2.readthedocs.io/en/stable/
+    path('select2/', include('django_select2.urls'))
 ]

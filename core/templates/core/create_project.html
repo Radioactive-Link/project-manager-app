@@ -7,6 +7,9 @@
 <div class="card shadow-sm p-4 mb-4">
     <h2 class="mb-4">Create New Project</h2>
 
+    <!-- load django_select2 scripts -->
+    {{ form.media }}
+
     <form method="post">
         {% csrf_token %}
         {{ form.non_field_errors }}
@@ -37,7 +40,6 @@
             {{ form.employees.label_tag }}
             {{ form.employees|add_class:"form-select" }}
             {{ form.employees.errors }}
-            <small class="form-text text-muted">Hold Ctrl/Cmd to select multiple employees.</small>
         </div>
 
         <h4>Requirements</h4>
@@ -159,6 +161,19 @@
         <a href="/" class="btn btn-secondary ms-2 mt-4">Cancel</a>
     </form>
 </div>
+
+<style>
+    /* fix django_select2 border styling */
+    .select2-container--default .select2-selection--multiple {
+        background-color: #fff;
+        border: 1px solid #ced4da;
+    }
+
+    .select2-container--default.select2-container--focus .select2-selection--multiple {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.2rem rgba(13,110,253,.25);
+    }
+</style>
 
 <script>
     document.getElementById('addRequirementBtn').addEventListener('click', () => {
