@@ -29,7 +29,7 @@
         </div>
 
         <!-- Description -->
-        <div class="mb-3">
+        <div class=x"mb-3">
             {{ form.description.label_tag }}
             {{ form.description|add_class:"form-control" }}
             {{ form.description.errors }}
@@ -175,117 +175,30 @@
     }
 </style>
 
+
+<!-- provides initDynamicFormset -->
+{% load static %}
+<script src="{% static 'core/js/dynamic_formset.js' %}"></script>
+
 <script>
-    document.getElementById('addRequirementBtn').addEventListener('click', () => {
-        const formsetDiv = document.getElementById("requirements-formset");
-        const totalForms = document.getElementById("id_requirements-TOTAL_FORMS");
-        const template = document.getElementById("empty-form-template").innerHTML;
-
-        const formIndex = parseInt(totalForms.value);
-
-        const newFormHtml = template.replace(/__prefix__/g, formIndex);
-
-        const wrapper = document.createElement("div");
-        wrapper.innerHTML = newFormHtml;
-
-        const newForm = wrapper.firstElementChild;
-
-        formsetDiv.appendChild(newForm);
-        totalForms.value = formIndex + 1;
+$(function() {
+    initDynamicFormset({
+        addBtnId: "addRequirementBtn",
+        formsetId: "requirements-formset",
+        totalFormsId: "id_requirements-TOTAL_FORMS",
+        templateId: "empty-form-template",
+        formClass: "requirement-form",
+        deleteBtnClass: "requirement-delete-btn"
     });
 
-    function updateFormIndexes() {
-        const forms = document.querySelectorAll(".requirement-form");
-        const totalForms = document.getElementById("id_requirements-TOTAL_FORMS");
-
-        totalForms.value = forms.length;
-
-        forms.forEach((form, index) => {
-            form.querySelectorAll("input, select, textarea, label").forEach(el => {
-                if (el.name) {
-                    el.name = el.name.replace(/-\d+-/, `-${index}-`);
-                }
-                if (el.id) {
-                    el.id = el.id.replace(/-\d+-/, `-${index}-`);
-                }
-                if (el.htmlFor) {
-                    el.htmlFor = el.htmlFor.replace(/-\d+-/, `-${index}-`);
-                }
-            });
-        });
-    }
-
-    document.addEventListener("click", function(e) {
-        if (e.target.classList.contains("requirement-delete-btn")) {
-            const formDiv = e.target.closest(".requirement-form");
-            const deleteInput = formDiv.querySelector("input[type='checkbox'][name$='-DELETE']");
-
-            if (deleteInput) {
-                // existing object: mark for deletion and hide instantly
-                deleteInput.checked = true;
-                formDiv.style.display = "none";
-            } else {
-                // new form: remove entirely and reindex
-                formDiv.remove();
-                updateFormIndexes();
-            }
-        }
+    initDynamicFormset({
+        addBtnId: "addRiskBtn",
+        formsetId: "risks-formset",
+        totalFormsId: "id_risks-TOTAL_FORMS",
+        templateId: "empty-risk-form-template",
+        formClass: "risk-form",
+        deleteBtnClass: "risk-delete-btn"
     });
-
-    document.getElementById('addRiskBtn').addEventListener('click', () => {
-        const formsetDiv = document.getElementById("risks-formset");
-        const totalForms = document.getElementById("id_risks-TOTAL_FORMS");
-        const template = document.getElementById("empty-risk-form-template").innerHTML;
-
-        const formIndex = parseInt(totalForms.value);
-
-        const newFormHtml = template.replace(/__prefix__/g, formIndex);
-
-        const wrapper = document.createElement("div");
-        wrapper.innerHTML = newFormHtml;
-
-        const newForm = wrapper.firstElementChild;
-
-        formsetDiv.appendChild(newForm);
-        totalForms.value = formIndex + 1;
-    });
-
-    function updateRiskFormIndexes() {
-        const forms = document.querySelectorAll(".risk-form");
-        const totalForms = document.getElementById("id_risks-TOTAL_FORMS");
-
-        totalForms.value = forms.length;
-
-        forms.forEach((form, index) => {
-            form.querySelectorAll("input, select, textarea, label").forEach(el => {
-                if (el.name) {
-                    el.name = el.name.replace(/-\d+-/, `-${index}-`);
-                }
-                if (el.id) {
-                    el.id = el.id.replace(/-\d+-/, `-${index}-`);
-                }
-                if (el.htmlFor) {
-                    el.htmlFor = el.htmlFor.replace(/-\d+-/, `-${index}-`);
-                }
-            });
-        });
-    }
-
-    document.addEventListener("click", function(e) {
-        if (e.target.classList.contains("risk-delete-btn")) {
-            const formDiv = e.target.closest(".risk-form");
-            const deleteInput = formDiv.querySelector("input[type='checkbox'][name$='-DELETE']");
-
-            if (deleteInput) {
-                // existing object: mark for deletion and hide instantly
-                deleteInput.checked = true;
-                formDiv.style.display = "none";
-            } else {
-                // new form: remove entirely and reindex
-                formDiv.remove();
-                updateRiskFormIndexes();
-            }
-        }
-    });
+});
 </script>
 {% endblock %}
