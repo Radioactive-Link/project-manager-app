@@ -56,10 +56,10 @@
 
                     <!-- Requirement Type & Description -->
                     <div class="row mb-2 requirement-form">
-                        <div class="col-md-2">
+                        <div class="col-md-auto">
                             {{ req_form.requirement_type|add_class:"form-select" }}
                         </div>
-                        <div class="col-md-8">
+                        <div class="col">
                             {{ req_form.requirement_description|add_class:"form-control" }}
                         </div>
                         <div class="col-md-2">
@@ -78,10 +78,10 @@
 
                 <template id="empty-form-template">
                     <div class="row mb-2 requirement-form">
-                        <div class="col-md-2">
+                        <div class="col-md-auto">
                             {{ requirement_formset.empty_form.requirement_type|add_class:"form-select" }}
                         </div>
-                        <div class="col-md-8">
+                        <div class="col">
                             {{ requirement_formset.empty_form.requirement_description|add_class:"form-control" }}
                         </div>
                         <div class="col-md-2">
